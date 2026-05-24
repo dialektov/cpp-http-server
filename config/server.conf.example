@@ -1,0 +1,12 @@
+# Copy to config/server.conf and adjust values.
+
+host=127.0.0.1
+port=8080
+public_dir=public
+database_url=postgresql://postgres:postgres@127.0.0.1:5432/cpp_http_server
+thread_pool_size=4
+rate_limit_rpm=120
+api_key=dev-api-key
+structured_logs=false
+
+# Env override: HTTP_DATABASE_URL=postgresql://user:pass@host:5432/dbname

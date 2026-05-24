@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes — cpp-http-server</title>
+  <style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 32px auto; padding: 0 16px; }
+  input, textarea, button { font: inherit; margin: 4px 0; width: 100%; box-sizing: border-box; }
+  button { width: auto; cursor: pointer; }
+  .note { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 12px 0; }
+  .err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <p><a href="/">← На главную</a></p>
+  <h1>Заметки</h1>
+
+  <form id="create-form">
+    <label>Заголовок <input name="title" required></label>
+    <label>Текст <textarea name="content" rows="3"></textarea></label>
+    <button type="submit">Создать</button>
+  </form>
+  <p id="error" class="err" hidden></p>
+  <div id="list"></div>
+
+  <script>
+  const listEl = document.getElementById('list');
+  const errorEl = document.getElementById('error');
+
+  function showError(msg) {
+    errorEl.hidden = !msg;
+    errorEl.textContent = msg || '';
+  }
+
+  async function loadNotes() {
+    const res = await fetch('/api/notes');
+    if (!res.ok) throw new Error('GET /api/notes: ' + res.status);
+    const notes = await res.json();
+    listEl.innerHTML = notes.map(n => `
+      <article class="note" data-id="${n.id}">
+        <strong>#${n.id}</strong> ${escapeHtml(n.title)}
+        <p>${escapeHtml(n.content || '')}</p>
+        <button type="button" data-delete="${n.id}">Удалить</button>
+      </article>
+    `).join('');
+    listEl.querySelectorAll('[data-delete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-delete');
+        const del = await fetch('/api/notes/' + id, { method: 'DELETE' });
+        if (!del.ok) throw new Error('DELETE failed: ' + del.status);
+        await loadNotes();
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('create-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showError('');
+    const fd = new FormData(e.target);
+    const body = { title: fd.get('title'), content: fd.get('content') || '' };
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      showError(await res.text());
+      return;
+    }
+    e.target.reset();
+    await loadNotes();
+  });
+
+  loadNotes().catch(err => showError(err.message));
+  </script>
+</body>
+</html>

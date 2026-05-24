@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cpp-http-server</title>
+  <style>
+  body {
+    font-family: system-ui, sans-serif;
+    max-width: 720px;
+    margin: 48px auto;
+    padding: 0 16px;
+    line-height: 1.5;
+  }
+  code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .hint {
+    color: #555;
+    font-size: 0.95rem;
+  }
+  </style>
+</head>
+<body>
+  <h1>cpp-http-server</h1>
+  <p>Pet-проект: HTTP/1.1 на C++17, PostgreSQL, метрики, тесты и CI.</p>
+
+  <h2>Страницы</h2>
+  <ul>
+    <li><a href="/notes.html">Заметки (UI)</a> — HTML-интерфейс к <code>/api/notes</code></li>
+  </ul>
+
+  <h2>JSON API (не HTML)</h2>
+  <p class="hint">Ссылки ниже открывают сырой JSON в браузере — это нормально.</p>
+  <ul>
+    <li><a href="/health">/health</a> — статус сервера и БД</li>
+    <li><a href="/metrics">/metrics</a> — JSON-метрики</li>
+    <li><a href="/metrics/prometheus">/metrics/prometheus</a> — Prometheus</li>
+    <li><a href="/api/time">/api/time</a> — unix-время</li>
+    <li><a href="/api/notes">/api/notes</a> — список заметок</li>
+  </ul>
+
+  <h2>Примеры curl</h2>
+  <pre><code>curl http://127.0.0.1:8080/health
+curl -X POST http://127.0.0.1:8080/api/notes \
+  -H "Content-Type: application/json" \
+  -d '{"title":"todo","content":"milk"}'
+curl -H "X-API-Key: dev-api-key" http://127.0.0.1:8080/api/me</code></pre>
+</body>
+</html>
